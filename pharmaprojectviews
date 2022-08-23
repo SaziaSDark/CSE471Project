@@ -59,6 +59,8 @@ def signin(request):
 
 
 
+
+
 def search(request):
     connection = mysql.connector.connect(host="localhost", user="root", password="",
                                          database="pharmaproject")
@@ -67,6 +69,9 @@ def search(request):
 
     context4 = {}
     context4['form3'] = form3
+    prods=[]
+
+
     if form3.is_valid():
         pname = str(form3.cleaned_data.get("product"))
         query2="SELECT * FROM products WHERE ProdName=(%s) "
@@ -74,12 +79,18 @@ def search(request):
         t4 = ()
         t4 = s.fetchall()
 
+
         for x2 in t4:
             if (x2[0]==pname):
-                return HttpResponse("cooolz")
+                for row in t4:
+                    prods.append({"name": row[0], "Sciname": row[1], "Available": row[2], "pharmaName": row[3], "price":row[4]})
+                return render(request,'pharma/display.html', {'prods':prods})
+
+
             else:
                 return HttpResponse("coool")
 
 
     return render(request,"pharma/search.html",context4)
+
 
