@@ -1,0 +1,85 @@
+from django.http import HttpResponse
+from django.shortcuts import render
+from .form import PersonForm
+
+from .form import Login
+from .form import Search
+import mysql.connector
+
+
+
+
+
+def home(request):
+    return render(request, "pharma/index.html")
+def welcome(request):
+    return render(request, "pharma/welcome.html")
+
+
+def signup(request):
+
+    context = {}
+
+    # add the dictionary during initialization
+    form = PersonForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+
+    context['form'] = form
+    return render(request, "pharma/signup.html", context)
+
+
+def signin(request):
+    connection = mysql.connector.connect(host="localhost", user="root", password="",
+                                         database="pharmaproject")
+    s = connection.cursor()
+    form2 = Login(request.POST)
+    form3 = Search(request.POST)
+
+    context4 = {}
+    context4['form3'] = form3
+
+    context3={}
+    context3['form2']=form2
+    if form2.is_valid():
+        uname = str(form2.cleaned_data.get("username"))
+        passw = str(form2.cleaned_data.get("password"))
+        query = "SELECT username FROM customerdb WHERE password=(%s) and username=(%s)"
+        t=s.execute(query, (passw,uname))
+        t2=()
+        t2=s.fetchall()
+
+        for x in t2:
+            if(uname==x[0]):
+                return render(request, "pharma/welcome.html",context4)
+            else:
+                return render(request, "pharma/signin.html", context3)
+
+    return render(request, "pharma/signin.html",context3)
+
+
+
+def search(request):
+    connection = mysql.connector.connect(host="localhost", user="root", password="",
+                                         database="pharmaproject")
+    s = connection.cursor()
+    form3 = Search(request.POST)
+
+    context4 = {}
+    context4['form3'] = form3
+    if form3.is_valid():
+        pname = str(form3.cleaned_data.get("product"))
+        query2="SELECT * FROM products WHERE ProdName=(%s) "
+        t3 = s.execute(query2, (pname,))
+        t4 = ()
+        t4 = s.fetchall()
+
+        for x2 in t4:
+            if (x2[0]==pname):
+                return HttpResponse("cooolz")
+            else:
+                return HttpResponse("coool")
+
+
+    return render(request,"pharma/search.html",context4)
+
