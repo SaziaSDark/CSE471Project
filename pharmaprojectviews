@@ -93,4 +93,6 @@ def search(request):
 
     return render(request,"pharma/search.html",context4)
 
+   def addcart(request,name):
 
+    return HttpRes
