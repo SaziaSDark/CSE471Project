@@ -1,0 +1,30 @@
+<table class="table">
+    <thead>
+
+        <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Sciname</th>
+        <th scope="col">Available</th>
+        <th scope="col">pharmacy</th>
+            <th scope="col">price</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for prods in prods %}
+            <tr>
+                <td>{{ prods.name }}</td>
+                <td>{{ prods.Sciname }}</td>
+                <td>{{ prods.Available }}</td>
+                <td>{{ prods.pharmaName }}</td>
+            <td>{{ prods.price }}</td>
+
+
+
+
+
+
+            </tr>
+           <td> <button type="submit"><a href="/{request.GET[{{ prods.name }}]}">Search</a></button></td>
+        {% endfor %}
+    </tbody>
+</table>
