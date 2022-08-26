@@ -69,7 +69,7 @@ def search(request):
 
     context4 = {}
     context4['form3'] = form3
-    prods=[]
+    global prods
 
 
     if form3.is_valid():
@@ -84,6 +84,8 @@ def search(request):
             if (x2[0]==pname):
                 for row in t4:
                     prods.append({"name": row[0], "Sciname": row[1], "Available": row[2], "pharmaName": row[3], "price":row[4]})
+
+
                 return render(request,'pharma/display.html', {'prods':prods})
 
 
@@ -92,7 +94,35 @@ def search(request):
 
 
     return render(request,"pharma/search.html",context4)
+def addcart(request,name):
 
-   def addcart(request,name):
+    x=str(name)
+    connection = mysql.connector.connect(host="localhost", user="root", password="",
+                                         database="pharmaproject")
+    s = connection.cursor()
+    form5 = Add(request.POST)
 
-    return HttpRes
+    context5 = {}
+    context5['form5'] = form5
+    price=0
+    y=0
+
+    if form5.is_valid():
+        pname2 = int(form5.cleaned_data.get("quantity"))
+        query66="UPDATE products SET Available=Available-(%s) WHERE ProdName=(%s)"
+        t10=s.execute(query66,(pname2,name))
+        query67="SELECT price FROM products WHERE ProdName=(%s)"
+        t11 = s.execute(query67, (name,))
+        t12=s.fetchall()
+        for row3 in t12:
+            y=row3[0]
+
+
+        return render(request,"pharma/welcome.html")
+
+    return render(request,"pharma/checkout.html",context5)
+def checkout(request,prices):
+    x=[]
+    x=prices
+    return HttpResponse(x)
+
