@@ -1,0 +1,32 @@
+from django import forms
+
+from .models import Person, Add
+from .models import Login
+
+from .models import Search,Checkout
+
+
+
+class PersonForm(forms.ModelForm):
+    class Meta:
+        model = Person
+        fields = "__all__"
+class Login(forms.ModelForm):
+    class Meta:
+        model = Login
+        fields = "__all__"
+class Search(forms.ModelForm):
+    class Meta:
+        model =Search
+        fields = ['product',]
+
+        def __init__(self, *args, **kwargs):
+            super(Search, self).__init__(*args, **kwargs)
+
+            self.fields['quantity'].widget = forms.HiddenInput()
+
+class Add(forms.ModelForm):
+    class Meta:
+        model =Add
+        fields ='__all__'
+
