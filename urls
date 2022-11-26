@@ -1,0 +1,25 @@
+
+from django.urls import path
+from . import views
+
+
+urlpatterns = [
+   path('', views.home, name="home"),
+   path('signup', views.signup, name="signup"),
+   path('signin', views.signin, name="signin"),
+path('welcome', views.welcome, name="welcome"),
+
+path('admin',views.Admin,name="Admin"),
+
+path('search', views.search, name="search"),
+   path('{request.GET[<name>]}',views.addcart,name="addcart"),
+path('checkout',views.checkout,name="checkout"),
+
+
+
+
+
+
+]
+
+
