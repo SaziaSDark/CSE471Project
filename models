@@ -1,0 +1,57 @@
+from django.db import models
+
+
+
+
+
+
+class Person(models.Model):
+
+       username=models.CharField(max_length=100)
+       fname=models.CharField(max_length=100)
+       lname=models.CharField(max_length=100)
+       address=models.CharField(max_length=100)
+       number=models.IntegerField()
+       issues=models.CharField(max_length=100)
+       password=models.CharField(max_length=100)
+
+
+       class Meta:
+              db_table="customerdb"
+
+class Login(models.Model):
+
+       username=models.CharField(max_length=100)
+
+       password=models.CharField(max_length=100)
+
+       def __str__(self):
+              return self.username
+
+class Search(models.Model):
+
+
+
+       product=models.CharField(max_length=100)
+
+       class Meta:
+              db_table = "products"
+class Add(models.Model):
+       quantity = models.IntegerField()
+class Checkout(models.Model):
+       Product = models.CharField(max_length=100)
+       Username = models.CharField(max_length=100)
+       Amount = models.IntegerField()
+       Status=models.CharField(max_length=100)
+
+       class Meta:
+              db_table="pending"
+
+
+
+
+
+
+
+
+
