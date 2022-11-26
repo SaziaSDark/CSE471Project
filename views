@@ -1,0 +1,177 @@
+from django.http import HttpResponse
+from django.shortcuts import render
+from .form import PersonForm, Add
+
+from .form import Login
+from .form import Search
+from .models import Checkout
+
+import mysql.connector
+
+prods = []
+prices = []
+
+
+def home(request):
+    return render(request, "pharma/index.html")
+
+
+def welcome(request):
+    return render(request, "pharma/welcome.html")
+
+
+def signup(request):
+    context = {}
+
+    # add the dictionary during initialization
+    form = PersonForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+
+    context['form'] = form
+    return render(request, "pharma/signup.html", context)
+
+
+def signin(request):
+    connection = mysql.connector.connect(host="localhost", user="root", password="",
+                                         database="pharmaproject")
+    s = connection.cursor()
+    form2 = Login(request.POST)
+    form3 = Search(request.POST)
+
+    context4 = {}
+    context4['form3'] = form3
+
+    context3 = {}
+    context3['form2'] = form2
+    if form2.is_valid():
+        uname = str(form2.cleaned_data.get("username"))
+        passw = str(form2.cleaned_data.get("password"))
+        query = "SELECT username FROM customerdb WHERE password=(%s) and username=(%s)"
+        t = s.execute(query, (passw, uname))
+        t2 = ()
+        t2 = s.fetchall()
+        request.session['username'] = uname
+
+        for x in t2:
+            if (uname == x[0]):
+                return render(request, "pharma/welcome.html", context4)
+            else:
+                return render(request, "pharma/signin.html", context3)
+
+    return render(request, "pharma/signin.html", context3)
+
+
+def search(request):
+    connection = mysql.connector.connect(host="localhost", user="root", password="",
+                                         database="pharmaproject")
+    s = connection.cursor()
+    form3 = Search(request.POST)
+
+    context4 = {}
+    context4['form3'] = form3
+    global prods
+
+    if form3.is_valid():
+        pname = str(form3.cleaned_data.get("product"))
+        query2 = "SELECT * FROM products WHERE ProdName=(%s) "
+        t3 = s.execute(query2, (pname,))
+        t4 = ()
+        t4 = s.fetchall()
+
+        for x2 in t4:
+            if (x2[0] == pname):
+                for row in t4:
+                    prods.append(
+                        {"name": row[0], "Sciname": row[1], "Available": row[2], "pharmaName": row[3], "price": row[4]})
+
+                return render(request, 'pharma/display.html', {'prods': prods})
+
+
+            else:
+                return HttpResponse("coool")
+
+    return render(request, "pharma/search.html", context4)
+
+
+def addcart(request, name):
+    x = str(name)
+    connection = mysql.connector.connect(host="localhost", user="root", password="",
+                                         database="pharmaproject")
+    s = connection.cursor()
+    form5 = Add(request.POST)
+
+    context5 = {}
+    context5['form5'] = form5
+    price = 0
+    y = 0
+
+    if form5.is_valid():
+        pname2 = int(form5.cleaned_data.get("quantity"))
+        query66 = "UPDATE products SET Available=Available-(%s) WHERE ProdName=(%s)"
+        t10 = s.execute(query66, (pname2, name))
+        query67 = "SELECT price FROM products WHERE ProdName=(%s)"
+
+        request.session['amount'] = pname2
+        request.session['productname'] = name
+
+        t11 = s.execute(query67, (name,))
+        t12 = s.fetchall()
+
+        for row3 in t12:
+            y = row3[0]
+
+        return render(request, "pharma/welcome.html")
+
+    return render(request, "pharma/checkout.html", context5)
+
+
+def checkout(request):
+
+    connection = mysql.connector.connect(host="localhost", user="root", password="",
+                                         database="pharmaproject")
+    s = connection.cursor()
+    pending=[]
+    usern = request.session['username']
+    product = request.session['productname']
+    amount = request.session['amount']
+    p=0
+    status='pending'
+    request.session['status']=status
+    saverec=Checkout()
+    saverec.Product=product
+    saverec.Username=usern
+    saverec.Amount=amount
+    saverec.Status=status
+    saverec.save()
+    query99="SELECT price FROM products WHERE ProdName=(%s)"
+    z=s.execute(query99,(product,))
+    z1=s.fetchall()
+    for row3 in z1:
+        p=row3[0]*amount
+
+
+    pending.append({'username':usern,'product':product,'amount':amount,'status':status,'price':p})
+
+    return render(request,"pharma/updates.html",{'pending':pending})
+
+
+def Admin(request):
+    connection = mysql.connector.connect(host="localhost", user="root", password="",
+                                         database="pharmaproject")
+    s = connection.cursor()
+    pro=request.session['productname']
+    use=request.session['username']
+    status2 = "pending"
+    query700="SELECT customerdb.username,customerdb.issues,pending.Product,pending.Amount,pending.Status FROM customerdb INNER JOIN pending ON customerdb.username=pending.Username WHERE pending.Status=(%s)"
+    t3 = s.execute(query700, (status2,))
+    t4 = ()
+
+    t4 = s.fetchall()
+    prods2=[]
+
+    for row in t4:
+        prods2.append({"name": row[0], "issues": row[1], "product": row[2], "amount": row[3], "status": row[4]})
+
+        return render(request, 'pharma/admin.html', {'prods2': prods2})
+    return HttpResponse("failed")
